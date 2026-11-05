@@ -1,0 +1,88 @@
+{
+  "version": 2,
+  "note": "V2 metadata-only manifest. Every enabled dataset must name its consumer skill, target fields and workflow step. Image URLs and portrait/render assets are out of scope.",
+  "sources": [
+    {
+      "id": "deepghs",
+      "enabled": true,
+      "kind": "markdown_index",
+      "download_images": false,
+      "importer": "import-deepghs-md",
+      "consumer_skill": "novel2moss-character-profile / novel2moss-blind-cast",
+      "target_fields": "universes, characters, character_tags, catalog_tags",
+      "used_in_step": "NON_BLIND casting and character lookup",
+      "license_note": "Dataset listing MIT; character IP and sample images have separate rights. Import names/core tags only.",
+      "groups": {
+        "blue_archive": {
+          "url": "https://huggingface.co/datasets/deepghs/character_index/resolve/main/pages/blue_archive.md",
+          "dest": "deepghs/blue_archive.md",
+          "source_revision": "huggingface-main"
+        }
+      }
+    },
+    {
+      "id": "ai_pose_gallery",
+      "enabled": true,
+      "kind": "json_metadata",
+      "download_images": false,
+      "importer": "import-costume-gallery-json",
+      "consumer_skill": "novel2moss-character-profile / novel2moss-shot-spec",
+      "target_fields": "outfits, outfit_parts, catalog_captions",
+      "used_in_step": "generic outfit lookup and continuity",
+      "license_note": "Repository code is MIT; images and some data may have separate terms. Import JSON metadata only.",
+      "files": {
+        "costume_zh": {
+          "url": "https://raw.githubusercontent.com/anhao/ai-pose-gallery-zh/main/data/costume-zh.json",
+          "dest": "ai-pose-gallery/data/costume-zh.json",
+          "source_revision": "github-main",
+          "enabled": true
+        },
+        "costume_anime_zh": {
+          "url": "https://raw.githubusercontent.com/anhao/ai-pose-gallery-zh/main/data/costume-anime-zh.json",
+          "dest": "ai-pose-gallery/data/costume-anime-zh.json",
+          "source_revision": "charadb-7fe2e4b009ad6d85496101e929ac8528cb21d357",
+          "enabled": true
+        },
+        "pose_zh": {
+          "url": "https://raw.githubusercontent.com/anhao/ai-pose-gallery-zh/main/data/pose-zh.json",
+          "dest": "ai-pose-gallery/data/pose-zh.json",
+          "source_revision": "github-main",
+          "enabled": false,
+          "note": "P1 candidate only. Do not import until pose descriptions have reviewed English captions."
+        }
+      }
+    },
+    {
+      "id": "dbr_e621_lists",
+      "enabled": true,
+      "kind": "csv_tag_archive",
+      "download_images": false,
+      "importer": "import-tags-csv",
+      "consumer_skill": "novel2moss-catalog-ingest / novel2moss-character-profile",
+      "target_fields": "catalog_tags, catalog_tag_relations",
+      "used_in_step": "canonicalize DeepGHS core tags",
+      "license_note": "Repository license plus upstream Danbooru terms. V2 imports only the Danbooru namespace and only core tags attached to imported characters.",
+      "files": {
+        "danbooru_2026-10-01_pt20_ia_dd": {
+          "url": "https://raw.githubusercontent.com/DraconicDragon/dbr-e621-lists-archive/main/tag-lists/danbooru/danbooru_2026-10-01_pt20-ia-dd.csv",
+          "dest": "dbr-e621-lists-archive/danbooru/danbooru_2026-10-01_pt20-ia-dd.csv",
+          "source_revision": "2026-10-01/pt20-ia-dd",
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "danbooru_api",
+      "enabled": false,
+      "kind": "api",
+      "download_images": false,
+      "importer": "import-tag-relations-json",
+      "consumer_skill": "novel2moss-catalog-ingest / novel2moss-character-profile",
+      "target_fields": "catalog_tag_relations",
+      "used_in_step": "canonical tag resolution when a manual export exists",
+      "license_note": "Danbooru API terms and per-tag/content rights apply.",
+      "notes": "Use a manual/official export only; do not bypass access controls. Danbooru may return a Cloudflare challenge.",
+      "files": {}
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "shot_id": "S001",
+  "revision": 1,
+  "rules_version": "n2m-fidelity-v1",
+  "mappings": [
+    {"source": "/interaction/actor_id", "source_value": "ARIA", "status": "VISUALIZED", "target": "/summary/caption"},
+    {"source": "/interaction/target_id", "source_value": "NOAH", "status": "VISUALIZED", "target": "/items/1/caption"},
+    {"source": "/participants/0/outfit/bottom", "source_value": "dark blue skirt", "status": "VISUALIZED", "target": "/items/0/caption"},
+    {"source": "/intent/raw_labels", "source_value": ["mature", "nsfw"], "status": "NON_VISUAL_SIDECAR", "target": "/intent/raw_labels"}
+  ],
+  "note": "Example mapping is illustrative; semantic fidelity requires review. Content classification stays in canonical sidecar, not in public Layout fields."
+}

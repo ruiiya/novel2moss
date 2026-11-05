@@ -1,0 +1,44 @@
+import unittest
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+POLICY = ROOT / 'docs/novel2moss/CONTENT_POLICY.md'
+
+class RoutingContractTests(unittest.TestCase):
+    def test_policy_exists_and_scopes(self):
+        text=POLICY.read_text(encoding='utf-8')
+        for scope in ['SOURCE_INGEST', 'STORY_ANALYSIS', 'PROMPT_DERIVATION', 'RENDER_DISPATCH', 'QA']:
+            with self.subTest(scope=scope): self.assertIn(scope, text)
+        self.assertIn('1.3.0', text)
+
+    def test_all_skills_reference_policy(self):
+        for file in (ROOT/'skills').glob('*/SKILL.md'):
+            with self.subTest(file=file):
+                self.assertIn('docs/novel2moss/CONTENT_POLICY.md', file.read_text(encoding='utf-8'))
+
+    def test_blind_mode_separate_from_generation(self):
+        text=(ROOT/'skills/novel2moss-blind-cast/SKILL.md').read_text(encoding='utf-8')
+        self.assertIn('Blind Mode chấp nhận mọi story', text)
+        self.assertIn('PROMPT_DERIVATION', text)
+
+    def test_label_only_not_auto_rejected(self):
+        text=POLICY.read_text(encoding='utf-8')
+        self.assertIn('không tự nó là lý do chặn', text)
+
+    def test_local_backend_is_technical(self):
+        text=(ROOT/'skills/novel2moss-render-adapter/SKILL.md').read_text(encoding='utf-8')
+        self.assertIn('backend_type: local', text)
+        self.assertIn('BACKEND_REJECTED', text)
+
+    def test_rule_ownership(self):
+        # Nguyên tắc phân loại cụ thể không được xuất hiện trong SKILL.md,
+        # chỉ policy trung tâm nắm quyền quyết định.
+        forbidden=['không hỗ trợ trường hợp có người chưa thành niên',
+                   'hoặc bạo lực tình dục, không tạo prompt',
+                   'không hỗ trợ tạo prompt hình ảnh tình dục hóa người chưa thành niên']
+        for file in (ROOT/'skills').glob('*/SKILL.md'):
+            text=file.read_text(encoding='utf-8').lower()
+            with self.subTest(skill=file.parent.name):
+                for clause in forbidden: self.assertNotIn(clause, text)
+
+if __name__ == '__main__': unittest.main()

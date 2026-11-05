@@ -1,0 +1,6 @@
+{
+  "shot_id": "S001",
+  "status": "PASS",
+  "scope": "deterministic_source_shot_fields_only",
+  "findings": []
+}
