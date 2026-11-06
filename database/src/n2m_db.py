@@ -346,6 +346,65 @@ def import_deepghs(con, path: Path):
     return imported, skipped
 
 
+def import_character_list(con, path: Path):
+    """Import curated character slugs backed by Danbooru character-category rows.
+
+    The JSON lists characters that a copyright page does not cover; every entry
+    must already exist as category 4 in the tag archive, so the importer only
+    records provenance, the tag and its aliases. No age/outfit inference, no
+    identity merge with other universes.
+    """
+    seed(con)
+    data = json.loads(path.read_text(encoding='utf-8'))
+    universe_slug = slugify(data['universe'])
+    universe_id = f'universe:{universe_slug}'
+    run_id = begin_import(con, 'dbr_e621_lists', {'file': path.name,
+                          'sha256': sha(path.read_bytes()),
+                          'mode': 'character-list', 'universe': universe_slug})
+    imported = skipped = rejected = 0
+    try:
+        con.execute('INSERT OR IGNORE INTO universes(id,slug,display_name) VALUES (?,?,?)',
+                    (universe_id, universe_slug, data['universe'].replace('_', ' ')))
+        for item in data['characters']:
+            tag = item['name']
+            if str(item.get('category')) != '4':
+                rejected += 1
+                continue
+            record = track_source_record(con, 'dbr_e621_lists', f'{universe_slug}/{tag}',
+                                         'character_tag', item, run_id)
+            char_id = f'character:danbooru:{sha(universe_slug + "/" + tag)[:18]}'
+            exists = con.execute('SELECT 1 FROM characters WHERE id=?', (char_id,)).fetchone()
+            con.execute('''INSERT OR IGNORE INTO characters
+                (id,universe_id,slug,display_name,identity_json)
+                VALUES (?,?,?,?,?)''',
+                (char_id, universe_id, tag, tag.replace('_', ' '),
+                 js({'source_record_id': record, 'danbooru_tag': tag,
+                     'post_count': item.get('post_count')})))
+            con.execute('''INSERT INTO catalog_tags(id,namespace,name,original_name,category,post_count)
+                VALUES (?,?,?,?,?,?) ON CONFLICT(namespace,name) DO UPDATE SET
+                category=excluded.category, post_count=excluded.post_count''',
+                (f'tag:danbooru:{tag}', 'danbooru', tag, tag, 4, item.get('post_count')))
+            for alias in item.get('aliases') or []:
+                con.execute('''INSERT INTO catalog_tag_relations
+                    (namespace,antecedent,consequent,relation_type,status,source_record_id)
+                    VALUES ('danbooru',?,?,'ALIAS','archive_unspecified',?)
+                    ON CONFLICT(namespace,antecedent,consequent,relation_type) DO NOTHING''',
+                    (alias, tag, record))
+            imported += int(not exists)
+            skipped += int(bool(exists))
+        finish_import(con, run_id, imported, skipped, details={
+            'file': path.name, 'universe': universe_slug,
+            'new_characters': imported, 'existing_characters': skipped,
+            'rejected_non_character_category': rejected,
+            'note': 'identity UNVERIFIED; tags from Danbooru category 4 rows only'})
+    except Exception as exc:
+        con.rollback()
+        finish_import(con, run_id, imported, skipped, errors=1,
+                      details={'file': path.name, 'error': str(exc)})
+        raise
+    return imported, skipped
+
+
 def import_danbooru_tags(con, path: Path):
     seed(con)
     data = json.loads(path.read_text(encoding='utf-8'))
@@ -656,6 +715,7 @@ def main():
         sub.add_parser(action)
     a=sub.add_parser('stats');a.add_argument('--detailed',action='store_true')
     a=sub.add_parser('import-deepghs-md');a.add_argument('file',type=Path)
+    a=sub.add_parser('import-character-list-json');a.add_argument('file',type=Path)
     a=sub.add_parser('import-danbooru-json');a.add_argument('file',type=Path)
     a=sub.add_parser('import-wikidata-json');a.add_argument('file',type=Path)
     a=sub.add_parser('import-tags-csv');a.add_argument('file',type=Path);a.add_argument('--namespace',required=True,choices=('danbooru','e621'));a.add_argument('--limit',type=int);a.add_argument('--no-aliases',action='store_true');a.add_argument('--source-revision');a.add_argument('--dry-run',action='store_true');a.add_argument('--from-character-core-tags',action='store_true')
@@ -678,6 +738,7 @@ def main():
         elif args.action=='stats':
             print(json.dumps(stats_detailed(con) if args.detailed else stats(con),indent=2,ensure_ascii=False))
         elif args.action=='import-deepghs-md': print('New, existing:',*import_deepghs(con,args.file))
+        elif args.action=='import-character-list-json': print('New, existing:',*import_character_list(con,args.file))
         elif args.action=='import-danbooru-json': print('New, existing/skipped:',*import_danbooru_tags(con,args.file))
         elif args.action=='import-wikidata-json': print('New, existing/skipped:',*import_wikidata(con,args.file))
         elif args.action=='import-tags-csv':

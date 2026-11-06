@@ -22,6 +22,8 @@ exports/<story_id>/<shot_key>/<revision>/
 
 Không kết nối SQLite, không đọc/ghi `render_jobs`/`render_assets`, không yêu cầu Novel2Moss CLI còn sống.
 
+Bản gộp tùy chọn để render hàng loạt: `exports/<story_id>/prompts.all.jsonl`. Mỗi dòng có metadata sidecar (`shot_key`, `page`, `act`, `beat`, `camera`, `focus`, `bundle_dir`) và `prompt` là canonical `layout.prompt.json`. Renderer chỉ gửi trường `prompt`; file gộp không thay thế bundle và không được dùng để sửa nội dung.
+
 ## Điều kiện trước khi chạy
 
 - Có bundle export hợp lệ; `prompt.manifest.json` khớp `layout.prompt.json` bằng `prompt_sha256`; nếu dùng `render.prompt.json`, kiểm tra hash riêng của file đó.

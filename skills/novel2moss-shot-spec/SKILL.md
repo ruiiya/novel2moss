@@ -20,9 +20,10 @@ Chỉnh sửa người dùng > ghi đè Shot đã duyệt > Beat đã duyệt > 
 - Liệt kê từng người bằng **character ID ổn định**, kèm điểm nhận diện và vai trò. Không suy tuổi trưởng thành, tên, franchise hay danh tính từ tag ảnh bất kỳ.
 - Xác định `interaction.actor_id → primary_action → interaction.target_id`, người giữ đạo cụ (nếu có) và biểu cảm/phản ứng của người nhận. Dùng `target_id: null` khi thực sự không có đối tượng nhận; không đảo chiều.
 - Mô tả độc lập tư thế, hướng nhìn, biểu cảm, tay/cử chỉ và quan hệ không gian của mỗi người. Không để nhân vật này tự kế thừa mô tả của nhân vật khác.
+- Viết tư thế theo **cơ học cơ thể**: hướng thân, vị trí tay/chân, điểm tiếp xúc, ai tác động lên ai. Caption phải nêu hành động nhìn thấy trong khung; nếu cận mặt không thấy hành động, ghi rõ bộ phận/điểm tiếp xúc đang được crop.
 - Lấy định danh/outfit từ profile; ghi **màu chính xác của từng món đồ** hoặc báo chưa xác định. Việc thay đổi có chủ đích là state delta, không phải mâu thuẫn cần xóa.
 - Kế thừa trạng thái đã xác nhận từ trước, áp dụng delta tường minh rồi suy ra `after`; phân biệt cut với mutation. Trạng thái chưa rõ/suy luận phải có nhãn tương ứng.
-- Ghi cảnh nhìn thấy, camera, ánh sáng, composition; không để góc quay lạ làm mất hành động quan trọng.
+- Ghi cảnh nhìn thấy, background cụ thể (loại phòng, đồ vật, chất liệu, nguồn sáng), camera, ánh sáng, composition; không để góc quay lạ làm mất hành động quan trọng.
 - Giữ `intent.raw_labels`, `intent.content_profile`, văn bản nguồn và các ràng buộc trong sidecar; không đổi phân loại nhạy cảm sang loại khác.
 - Nếu một khung hình không thể biểu diễn trung thực hành động, báo điểm chưa rõ hoặc đề xuất tách Shot, nhưng **không tự bịa thêm sự kiện truyện**.
 

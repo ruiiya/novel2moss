@@ -17,6 +17,11 @@
           "url": "https://huggingface.co/datasets/deepghs/character_index/resolve/main/pages/blue_archive.md",
           "dest": "deepghs/blue_archive.md",
           "source_revision": "huggingface-main"
+        },
+        "high_school_dxd": {
+          "url": "https://huggingface.co/datasets/deepghs/character_index/resolve/main/pages/high_school_dxd.md",
+          "dest": "deepghs/high_school_dxd.md",
+          "source_revision": "huggingface-main"
         }
       }
     },

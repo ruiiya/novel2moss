@@ -1,6 +1,7 @@
 # Runtime DB and raw licensed downloads are local artifacts.
 database/data/*.db
 database/data/*.db-*
+database/data/*.db.*
 database/data/backups/*
 database/imports/*
 !database/imports/.gitkeep

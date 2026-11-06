@@ -10,7 +10,7 @@ ROOT=Path(__file__).resolve().parents[1]
 class PackageTests(unittest.TestCase):
     def test_all_skill_metadata(self):
         skills=list((ROOT/'skills').glob('*/SKILL.md'))
-        self.assertEqual(len(skills),11)
+        self.assertEqual(len(skills),12)
         for file in skills:
             with self.subTest(file=file):
                 text=file.read_text(encoding='utf-8')

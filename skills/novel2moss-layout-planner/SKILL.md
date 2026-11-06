@@ -24,7 +24,7 @@ Có thể xuất thêm **`render.prompt.json` đa bbox** cho renderer nhận `sc
 ## Quy trình
 
 1. Đọc ShotSpec đã duyệt, tham chiếu nguồn, width/height và quyết định `PROMPT_DERIVATION` từ policy trung tâm. Chỉ xuất prompt cho quyết định `PASS`; các trạng thái khác được ghi nhận đúng scope, không sửa ý nghĩa truyện.
-2. Lập **sơ đồ cảnh**: số người xuất hiện, đặc điểm nhận diện, actor → action → target → reaction, tư thế, hướng nhìn, cử chỉ, trang phục/màu sắc, đạo cụ, camera, ánh sáng và ràng buộc nhìn thấy.
+2. Lập **sơ đồ cảnh**: số người xuất hiện, đặc điểm nhận diện, actor → action → target → reaction, tư thế, hướng nhìn, cử chỉ, trang phục/màu sắc, đạo cụ, camera, ánh sáng, **background cụ thể** và ràng buộc nhìn thấy. Background phải nêu loại phòng, đồ vật/kiến trúc, chất liệu và nguồn sáng nhìn thấy; không dùng “background đẹp” chung chung.
 3. Viết `summary.caption` mô tả toàn cảnh trực quan và tương tác chính **đúng sự kiện**. Caption mỗi item tập trung vào đặc điểm người/vật và hành động cụ thể; tránh đại từ mơ hồ, nhất là cảnh nhiều nhân vật.
 4. Tạo một item phẳng cho mỗi nhân vật quan trọng xuất hiện (thêm vật/chữ chỉ khi cần). Các nhân vật có ý nghĩa định danh phải giữ tên hoặc điểm nhận diện khác biệt đã có trong nguồn.
 5. Phác vùng đối tượng bằng bbox pixel góc trên-trái `[x_min,y_min,x_max,y_max]` với kích thước render rõ ràng. BBox có thể chồng lấn khi có chạm/che khuất; kiểm tra quan hệ không gian actor/target có khả thi.
@@ -62,6 +62,9 @@ Nếu render MOSS-Image-Base/SFT: dùng `layout.prompt.json` (`summary/items`), 
 - Một anchor rõ (thường target/người nhận) ở tiền cảnh; actor và người khác thành cung lệch, cao thấp so le.
 - `gen_brief` phải ghi rõ: `single continuous scene`, `not a grid or rows`, `no panels/split screen/comic grid`, `overlap shoulders and lower torsos, never faces`, `faces unobstructed`, `heads/torsos fill boxes`, `no extra limbs/duplicates/spectators`.
 - Ghi pose/action cụ thể trong `gen_brief` và `elements[].identity`; không để renderer tự suy ra.
+- Mỗi caption trả lời rõ **ai làm gì với ai, bộ phận nào, hướng nào**. Hành động chính phải nhìn thấy trong crop/bố cục; không thay hành động bằng cảm xúc hoặc đại từ mơ hồ.
+- Với hai nhân vật, đặt torso lệch nhau và chỉ cho bbox chồng ở vùng tiếp xúc. Caption phải khẳng định mỗi người có torso, hai tay và hai chân riêng; không để cơ thể nhập thành một khối.
+- Background phải có item `object` full-canvas với caption chi tiết nhìn thấy; không để nền trống hoặc chỉ ghi “bright set”.
 - Bbox centered `yxyx`; nếu renderer yêu cầu, thêm `bbox_format: "yxyx"`. Không đổi sang tag-only/caption-only.
 
 ### Chống grid
